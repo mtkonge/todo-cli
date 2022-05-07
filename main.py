@@ -1,6 +1,7 @@
 import os
 from termutils import clear_terminal
 from sys import argv
+import re
 
 commands = {
     "help": "shows all commands",
@@ -15,10 +16,22 @@ def printCommands():
         print(v + ": " + commands[v])
 
 def checkArgsAndCreateFile(argv: list[str]):
-        if len(argv) == 4:
-            if argv[2] == "new":
-                f = open("./lists/" + argv[3] + ".txt", 'x')
+    amountOfDots = 0
+    if len(argv) == 4:
+        if argv[2] == "new":
+            for i in range(len(argv[3])):
+                if argv[3][i] == ".":
+                    amountOfDots += 1
+            if amountOfDots >= 2:
+                print("More than one dot in the filename")
                 exit(0)
+            elif amountOfDots == 0:
+                f = open("./lists/" + argv[3] + ".txt", "w+")
+            if amountOfDots == 1 and re.search("\.txt$", argv[3]):
+                f = open("./lists/" + argv[3], "w+")
+            else:
+                print("Invalid file syntax")
+            exit(0)
 
 def checkArgsAndShowFiles(argv: list[str]):
     if len(argv) == 3:
@@ -34,14 +47,30 @@ def checkArgsAndEditFiles(argv: list[str]):
             exit(0)
 
 def checkArgsAndDeleteFiles(argv: list[str]):
+    amountOfDots = 0
     if len(argv) == 4:
         if argv[2] == "delete":
-            #todo should delete if file is typed with .txt
-            os.remove("./lists/" + argv[3] + ".txt")
+            for i in range(len(argv[3])):
+                if argv[3][i] == ".":
+                    amountOfDots += 1
+            if amountOfDots >= 2:
+                print("More than one dot in the filename")
+                exit(0)
+            elif amountOfDots == 0:
+                os.remove("./lists/" + argv[3] + ".txt")
+            if amountOfDots == 1 and re.search("\.txt$", argv[3]):
+                os.remove("./lists/" + argv[3])
+            else:
+                print("Invalid file syntax") 
+            
             exit(0)
 
 def main():
-    #todo make all arguments to lowercase
+    for i in range(len(argv)):
+        argv[i] = argv[i].lower()
+    if len(argv) == 1:
+        print("Missing arguments")
+        exit(0)
     if argv[1] == "help":
         printCommands()
         exit(0)
